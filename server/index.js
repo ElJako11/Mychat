@@ -19,9 +19,8 @@ io.on('connection', (socket) => {
     console.log('Usuario conectado:', socket.id);
 
     socket.on('mensaje', (data) => {
-        // Importante: lo que recibimos del cliente lo enviamos a todos
         io.emit('mensaje', {
-            nombre: data.nombre, // Antes estaba como 'name' en tu HTML, lo unificamos a 'nombre'
+            nombre: data.nombre, 
             texto: data.texto,
             id: socket.id.slice(0, 5)
         });

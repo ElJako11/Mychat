@@ -20,7 +20,9 @@
     <button onclick="enviar()">Enviar</button>
 
     <script>
-        // Recuerda: usa "localhost" para tu PC y "la IP" para la otra computadora
+        // "localhost" en la del servidor  
+        // "la IP:puerto" para la otra computadora en la misma red
+        // " direccion web cuando se haga el deploy"
         const socket = io("http://localhost:6969"); 
 
         const mensajesDiv = document.getElementById('mensajes');
@@ -29,7 +31,6 @@
             const div = document.createElement('div');
             div.classList.add('msg');
             
-            // CORRECCIÓN: data.nombre (debe coincidir con el servidor)
             div.innerHTML = `<strong>${data.nombre}:</strong> ${data.texto}`;
             
             mensajesDiv.appendChild(div);
@@ -43,16 +44,14 @@
             const name = inputname.value.trim() || "Anonimo";
             const texto = inputtext.value.trim();
             
-            // CORRECCIÓN: usamos la variable 'texto' que acabas de crear
             if (texto !== "") {
                 socket.emit('mensaje', {
                     nombre: name,
                     texto: texto
                 });
 
-                // Bloqueamos el nombre para que no se cambie en cada mensaje
+                
                 inputname.disabled = true;
-                // Limpiamos solo el cuadro del mensaje
                 inputtext.value = '';
             }
         }
