@@ -1,60 +1,86 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Chat Global</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; height: 90vh; padding: 20px; }
-        #mensajes { flex-grow: 1; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .msg { margin-bottom: 8px; padding: 5px; border-radius: 4px; background: #f9f9f9; }
-        input { padding: 8px; margin-bottom: 5px; }
-        button { padding: 10px; cursor: pointer; background: #28a745; color: white; border: none; }
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 90vh;
+        padding: 20px;
+      }
+      #mensajes {
+        flex-grow: 1;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+      .msg {
+        margin-bottom: 8px;
+        padding: 5px;
+        border-radius: 4px;
+        background: #f9f9f9;
+      }
+      input {
+        padding: 8px;
+        margin-bottom: 5px;
+      }
+      button {
+        padding: 10px;
+        cursor: pointer;
+        background: #28a745;
+        color: white;
+        border: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h2>Mi Chat Online</h2>
     <div id="mensajes"></div>
-    
-    <input type="text" id="username" placeholder="Nombre de usuario">
-    <input type="text" id="inputMensaje" placeholder="Escribe algo...">
+
+    <input type="text" id="username" placeholder="Nombre de usuario" />
+    <input type="text" id="inputMensaje" placeholder="Escribe algo..." />
     <button onclick="enviar()">Enviar</button>
 
     <script>
-        // "localhost" en la del servidor  
-        // "la IP:puerto" para la otra computadora en la misma red
-        // " direccion web cuando se haga el deploy"
-        const socket = io("http://localhost:6969"); 
+      // "localhost" en la del servidor
+      // "la IP:puerto" para la otra computadora en la misma red
+      // " direccion web cuando se haga el deploy"
+      const socket = io("http://localhost:8080");
 
-        const mensajesDiv = document.getElementById('mensajes');
+      const mensajesDiv = document.getElementById("mensajes");
 
-        socket.on('mensaje', (data) => {
-            const div = document.createElement('div');
-            div.classList.add('msg');
-            
-            div.innerHTML = `<strong>${data.nombre}:</strong> ${data.texto}`;
-            
-            mensajesDiv.appendChild(div);
-            mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
-        });
+      socket.on("mensaje", (data) => {
+        const div = document.createElement("div");
+        div.classList.add("msg");
 
-        function enviar() {
-            const inputname = document.getElementById('username');
-            const inputtext = document.getElementById('inputMensaje');
-            
-            const name = inputname.value.trim() || "Anonimo";
-            const texto = inputtext.value.trim();
-            
-            if (texto !== "") {
-                socket.emit('mensaje', {
-                    nombre: name,
-                    texto: texto
-                });
+        div.innerHTML = `<strong>${data.nombre}:</strong> ${data.texto}`;
 
-                
-                inputname.disabled = true;
-                inputtext.value = '';
-            }
+        mensajesDiv.appendChild(div);
+        mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+      });
+
+      function enviar() {
+        const inputname = document.getElementById("username");
+        const inputtext = document.getElementById("inputMensaje");
+
+        const name = inputname.value.trim() || "Anonimo";
+        const texto = inputtext.value.trim();
+
+        if (texto !== "") {
+          socket.emit("mensaje", {
+            nombre: name,
+            texto: texto,
+          });
+
+          inputname.disabled = true;
+          inputtext.value = "";
         }
+      }
     </script>
-</body>
+  </body>
 </html>
