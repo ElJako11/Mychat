@@ -6,7 +6,7 @@ const path = require("path");
 
 const app = express();
 
-app.use(express.static(path.join(__dirname, "../clientechat")));
+app.use(express.static(path.join(__dirname, "../clientechat/")));
 
 app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "../clientechat/index.html"));
