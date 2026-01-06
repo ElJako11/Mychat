@@ -1,86 +1,152 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Chat Global</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <style>
-      body {
-        font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-        height: 90vh;
-        padding: 20px;
+
+<head>
+  <title>Windows Live Messenger</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="msn-window">
+    <!-- Title Bar -->
+    <div class="msn-title-bar">
+      <div class="msn-logo-text">Windows Live Messenger</div>
+      <div class="window-controls">
+        <div class="win-btn">_</div>
+        <div class="win-btn">□</div>
+        <div class="win-btn close">X</div>
+      </div>
+    </div>
+
+    <!-- Header: Avatar & User Info -->
+    <div class="msn-header">
+      <div class="msn-avatar">
+        <!-- Placeholder avatar -->
+        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar">
+      </div>
+      <div class="msn-user-info">
+        <div class="msn-username">
+          <input type="text" id="username" class="ghost-input" placeholder="Your Name" value="Guest">
+        </div>
+        <div class="msn-status-line">
+          &lt;Type a personal message&gt;
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Body: Chat History -->
+    <div class="msn-body">
+      <div id="mensajes" class="msn-chat-display">
+        <!-- Messages go here -->
+        <div class="msg">
+          <div class="msg-header">
+            <span class="user">System</span>
+          </div>
+          <div class="msg-content">Welcome to the chat!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer: Toolbar, Input, Send -->
+    <div class="msn-input-area">
+      <div class="msn-toolbar">
+        <span class="tool-btn" style="font-weight: bold;">B</span>
+        <span class="tool-btn" style="font-style: italic;">I</span>
+        <span class="tool-btn" style="text-decoration: underline;">U</span>
+        <span class="tool-btn">☺</span>
+        <span class="tool-btn">Wizz!</span>
+      </div>
+      <div class="input-wrapper">
+        <textarea id="inputMensaje" placeholder="Type a message..."></textarea>
+      </div>
+      <div class="msn-footer">
+        <div style="font-size: 11px; color: #666;">Last message received at <span id="last-msg-time">--:--</span></div>
+        <button class="send-btn" onclick="enviar()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // "localhost" en la del servidor  
+    // "la IP:puerto" para la otra computadora en la misma red
+    // " direccion web cuando se haga el deploy"
+    const socket = io("http://localhost:8080");
+
+    const mensajesDiv = document.getElementById('mensajes');
+    const lastMsgTimeSpan = document.getElementById('last-msg-time');
+
+    // Avatar Switching Logic
+    const avatarImg = document.querySelector('.msn-avatar img');
+    const avatars = [
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Willow",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Chester"
+    ];
+    let currentAvatarIndex = 0;
+
+    document.querySelector('.msn-avatar').addEventListener('click', () => {
+      currentAvatarIndex = (currentAvatarIndex + 1) % avatars.length;
+      avatarImg.src = avatars[currentAvatarIndex];
+    });
+
+    socket.on('mensaje', (data) => {
+      const div = document.createElement('div');
+      div.classList.add('msg');
+
+      // Format time
+      const now = new Date();
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      div.innerHTML = `
+                <div class="msg-header">
+                    <span class="user">${data.nombre}</span> <span class="time">says:</span>
+                </div>
+                <div class="msg-content">${data.texto}</div>
+            `;
+
+      mensajesDiv.appendChild(div);
+      mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
+      lastMsgTimeSpan.textContent = timeString;
+    });
+
+    // Handle Enter key to send
+    document.getElementById('inputMensaje').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        enviar();
       }
-      #mensajes {
-        flex-grow: 1;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-      }
-      .msg {
-        margin-bottom: 8px;
-        padding: 5px;
-        border-radius: 4px;
-        background: #f9f9f9;
-      }
-      input {
-        padding: 8px;
-        margin-bottom: 5px;
-      }
-      button {
-        padding: 10px;
-        cursor: pointer;
-        background: #28a745;
-        color: white;
-        border: none;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Mi Chat Online</h2>
-    <div id="mensajes"></div>
+    });
 
-    <input type="text" id="username" placeholder="Nombre de usuario" />
-    <input type="text" id="inputMensaje" placeholder="Escribe algo..." />
-    <button onclick="enviar()">Enviar</button>
+    function enviar() {
+      const inputname = document.getElementById('username');
+      const inputtext = document.getElementById('inputMensaje');
 
-    <script>
-      // "localhost" en la del servidor
-      // "la IP:puerto" para la otra computadora en la misma red
-      // " direccion web cuando se haga el deploy"
-      const socket = io("http://localhost:8080");
+      const name = inputname.value.trim() || "Anonimo";
+      const texto = inputtext.value.trim();
 
-      const mensajesDiv = document.getElementById("mensajes");
+      if (texto !== "") {
+        socket.emit('mensaje', {
+          nombre: name,
+          texto: texto
+        });
 
-      socket.on("mensaje", (data) => {
-        const div = document.createElement("div");
-        div.classList.add("msg");
-
-        div.innerHTML = `<strong>${data.nombre}:</strong> ${data.texto}`;
-
-        mensajesDiv.appendChild(div);
-        mensajesDiv.scrollTop = mensajesDiv.scrollHeight;
-      });
-
-      function enviar() {
-        const inputname = document.getElementById("username");
-        const inputtext = document.getElementById("inputMensaje");
-
-        const name = inputname.value.trim() || "Anonimo";
-        const texto = inputtext.value.trim();
-
-        if (texto !== "") {
-          socket.emit("mensaje", {
-            nombre: name,
-            texto: texto,
-          });
-
+        // Lock the username to simulate being "Signed In"
+        if (!inputname.disabled) {
           inputname.disabled = true;
-          inputtext.value = "";
+          inputname.style.borderBottom = "none"; // Make it look like static text
+          inputname.style.color = "#000";
+          inputname.style.background = "transparent";
         }
+
+        inputtext.value = '';
+        inputtext.focus();
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
+
 </html>

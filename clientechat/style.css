@@ -1,0 +1,310 @@
+/* Windows Live Messenger 8.5 / 2009 inspired theme */
+
+:root {
+    --msn-blue-light: #eefcfd;
+    --msn-blue-border: #a0d8e9;
+    --msn-window-bg: #dcf2fa;
+    --msn-header-gradient-start: #f8fdff;
+    --msn-header-gradient-end: #d1ebf7;
+    --msn-text: #222;
+    --msn-green-status: #73c609;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://win98icons.alexmeub.com/images/background-clouds.jpg') no-repeat center center fixed;
+    /* Classic wallpaper feel */
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Main Window Frame */
+.msn-window {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to bottom, var(--msn-header-gradient-start) 0%, var(--msn-header-gradient-end) 100%);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(5px);
+}
+
+/* Window Title Bar (Draggable area conceptually) */
+.msn-title-bar {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    justify-content: space-between;
+}
+
+.msn-logo-text {
+    font-size: 12px;
+    color: #444;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.window-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.win-btn {
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: default;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.win-btn.close {
+    background: #e81123;
+    color: white;
+    border-color: #b00b1a;
+}
+
+/* Contact / Header Info */
+.msn-header {
+    display: flex;
+    padding: 10px 15px;
+    align-items: center;
+    gap: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.msn-avatar {
+    width: 80px;
+    height: 80px;
+    border: 4px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    /* Clickable indication */
+    transition: transform 0.1s;
+}
+
+.msn-avatar:active {
+    transform: scale(0.95);
+}
+
+.msn-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.msn-user-info {
+    flex-grow: 1;
+}
+
+.msn-username {
+    font-size: 18px;
+    font-weight: bold;
+    color: #111;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.msn-status-line {
+    font-size: 12px;
+    color: #555;
+    margin-top: 4px;
+    font-style: italic;
+    cursor: text;
+}
+
+.msn-status-line::before {
+    content: "(Away)";
+    color: #888;
+    margin-right: 5px;
+    font-style: normal;
+}
+
+/* Chat Area Layout */
+.msn-body {
+    flex-grow: 1;
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+    background: linear-gradient(to bottom, #eff7fa 0%, #d6f0fa 100%);
+}
+
+.msn-chat-display {
+    flex-grow: 1;
+    background: white;
+    border: 1px solid #a4cddb;
+    border-radius: 3px;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Message Styles */
+.msg {
+    margin-bottom: 5px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.msg-header {
+    color: #666;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.msg-header .user {
+    color: #0066cc;
+    /* MSN Blue */
+    font-weight: bold;
+}
+
+.msg-header .time {
+    color: #999;
+}
+
+.msg-content {
+    color: #222;
+    padding-left: 10px;
+}
+
+/* Toolbar (Bold, Italic, Emoticons) */
+.msn-toolbar {
+    height: 30px;
+    background: #f0f8ff;
+    border: 1px solid #a4cddb;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    gap: 10px;
+    border-radius: 3px 3px 0 0;
+    margin-top: 5px;
+}
+
+.tool-btn {
+    font-family: serif;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+}
+
+.tool-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 2px;
+}
+
+/* Input Area */
+.msn-input-area {
+    padding: 0 10px 10px 10px;
+}
+
+.input-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#inputMensaje {
+    height: 60px;
+    resize: none;
+    border: 1px solid #a4cddb;
+    border-top: 1px dashed #ccc;
+    /* Separator from toolbar */
+    font-family: inherit;
+    padding: 8px;
+    outline: none;
+    font-size: 13px;
+    width: 100%;
+}
+
+.msn-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.send-btn {
+    background: #fcfcfc;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    padding: 4px 15px;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.send-btn:hover {
+    border-color: #888;
+    background: #f0f0f0;
+}
+
+.send-btn:active {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* User inputs hiding in plain sight */
+.ghost-input {
+    border: none;
+    background: transparent;
+    border-bottom: 1px dashed #999;
+    color: #444;
+    font-size: 14px;
+    width: 150px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
