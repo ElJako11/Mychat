@@ -24,11 +24,22 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('Guest');
   const [avatarIndex, setAvatarIndex] = useState(0);
+  const [remoteAvatarIndex] = useState(1); // Fixed or random, independent of local
   const [isUsernameLocked, setIsUsernameLocked] = useState(false);
   const [activeFormats, setActiveFormats] = useState({ bold: false, italic: false, underline: false });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // Taskbar State
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
+  const [isStartOpen, setIsStartOpen] = useState(false);
+
+  useEffect(() => {
+    setCurrentTime(new Date());
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     // Connect to the server
@@ -95,6 +106,11 @@ export default function Home() {
       e.preventDefault();
       handleSend();
     }
+    // Handle Alt+S to send
+    if (e.altKey && (e.key === 's' || e.key === 'S')) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   const checkFormatState = () => {
@@ -132,14 +148,33 @@ export default function Home() {
   const lastMessageTime = messages.length > 0 ? messages[messages.length - 1].time : '--:--';
 
   return (
-    <div className="w-full h-full min-h-screen flex justify-center items-center p-4 font-sans bg-transparent">
+    <div className="w-full h-full min-h-screen flex justify-center items-center p-4 font-sans bg-transparent relative">
+
+      {/* Desktop Icons */}
+      <div className="absolute top-4 left-4 flex flex-col gap-6 z-0">
+        <div className="flex flex-col items-center gap-1 group cursor-pointer w-[70px]">
+          <img src="/My Computer.ico" alt="My Computer" className="w-[48px] h-[48px] drop-shadow-md" />
+          <span className="text-white text-[12px] font-sans drop-shadow-[1px_1px_1px_rgba(0,0,0,1)] text-center leading-tight group-hover:bg-[#0b61ff] group-hover:text-white px-1 rounded-[2px] transition-colors">
+            My Computer
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center gap-1 group cursor-pointer w-[70px]">
+          <img src="/Full Recycle Bin.ico" alt="Recycle Bin" className="w-[48px] h-[48px] drop-shadow-md" />
+          <span className="text-white text-[12px] font-sans drop-shadow-[1px_1px_1px_rgba(0,0,0,1)] text-center leading-tight group-hover:bg-[#0b61ff] group-hover:text-white px-1 rounded-[2px] transition-colors">
+            Recycle Bin
+          </span>
+        </div>
+      </div>
+
       {/* Main Window Frame - XP Style */}
       <div className="w-[800px] h-[600px] flex flex-col bg-[#eef3fa] border border-[#004e98] rounded-tl-[8px] rounded-tr-[8px] rounded-bl-[3px] rounded-br-[3px] shadow-[0_0_0_1px_rgba(255,255,255,0.3),0_10px_40px_rgba(0,0,0,0.5)] overflow-hidden relative select-none">
 
         {/* Title Bar - Gradient Blue */}
         <div className="h-[28px] bg-gradient-to-r from-[#0058ee] via-[#3593ff] to-[#0058ee] flex items-center justify-between px-2 cursor-default relative z-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
           <div className="flex items-center gap-2">
-            <div className="text-white text-[12px] font-bold drop-shadow-[0_1px_0_rgba(0,18,87,0.6)] pl-1">
+            <img src="/Messenger.png" alt="App Icon" className="w-[18px] h-[18px] ml-1" />
+            <div className="text-white text-[12px] font-bold drop-shadow-[0_1px_0_rgba(0,18,87,0.6)]">
               MSN Messenger
             </div>
           </div>
@@ -167,8 +202,8 @@ export default function Home() {
 
           {['Invite', 'Send Files', 'Video', 'Voice', 'Activities', 'Games'].map((tool, i) => (
             <div key={tool} className="flex flex-col items-center justify-center cursor-pointer group px-1 py-1 rounded-[3px] hover:bg-gradient-to-b hover:from-[#fff] hover:to-[#ffd69b] hover:border hover:border-[#cecece] border border-transparent min-w-[50px] transition-all duration-75">
-              <div className="w-[26px] h-[26px] mb-[1px] opacity-90 group-hover:opacity-100 bg-center bg-no-repeat bg-contain"
-                style={{ backgroundImage: `url('https://api.iconify.design/emojione:${['busts-in-silhouette', 'file-folder', 'video-camera', 'studio-microphone', 'soccer-ball', 'joystick'][i]}.svg')` }}></div>
+              <span className={`w-[26px] h-[26px] mb-[1px] opacity-90 group-hover:opacity-100 ${['icon-[emojione--busts-in-silhouette]', 'icon-[emojione--file-folder]', 'icon-[emojione--video-camera]', 'icon-[emojione--studio-microphone]', 'icon-[emojione--soccer-ball]', 'icon-[emojione--joystick]'][i]
+                }`} />
               <span className="text-[10px] text-[#222] group-hover:text-black">{tool}</span>
             </div>
           ))}
@@ -300,7 +335,7 @@ export default function Home() {
               <div className="w-full h-full border border-[#a2a2a2] rounded-[3px] overflow-hidden relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[rgba(0,0,0,0.1)] pointer-events-none z-10"></div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={AVATARS[(avatarIndex + 1) % AVATARS.length]} alt="Remote" className="w-full h-full object-cover" />
+                <img src={AVATARS[remoteAvatarIndex]} alt="Remote" className="w-full h-full object-cover" />
               </div>
               <div className="absolute top-[8px] -right-[14px] w-[14px] h-[32px] bg-[#fff] border border-[#a2a2a2] border-l-0 rounded-r-[6px] shadow-sm flex items-center justify-center cursor-pointer hover:bg-[#f0f0f0]">
                 <span className="text-[#666] text-[8px]">▼</span>
@@ -349,6 +384,212 @@ export default function Home() {
           {/* Resize Grip */}
           <div className="absolute bottom-[2px] right-[2px] flex gap-[2px]">
             <div className="w-[12px] h-[12px] opacity-40" style={{ backgroundImage: "radial-gradient(circle, #666 40%, transparent 50%)", backgroundSize: "4px 4px" }}></div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Windows XP Taskbar */}
+      <div className="fixed bottom-0 left-0 w-full h-[30px] bg-[#245dbd] flex items-center select-none z-50 font-[Tahoma,sans-serif] text-[11px] border-t-[2px] border-[#3e75d4] shadow-[0_-1px_0_1px_rgba(0,0,0,0.1)]"
+        style={{
+          background: 'linear-gradient(to bottom, #245dbd 0%, #6e9ae3 10%, #245dbd 20%, #2358b9 100%)'
+        }}
+      >
+        {/* Start Button */}
+        <div
+          className="relative h-full pl-[2px] py-[2px]"
+          onClick={() => setIsStartOpen(!isStartOpen)}
+        >
+          <div className="h-full flex items-center px-2 gap-1 rounded-r-[8px] rounded-tl-[8px] rounded-bl-[8px] cursor-pointer transition-all hover:brightness-110 active:brightness-95 relative overflow-hidden group"
+            style={{
+              background: 'linear-gradient(to bottom, #3f9c46 0%, #6ebf64 10%, #3f9c46 30%, #308332 100%)',
+              boxShadow: 'inset 1px 1px 2px rgba(255,255,255,0.5), 1px 1px 1px rgba(0,0,0,0.4)',
+              border: '1px solid #005000',
+              borderRight: '1px solid #003300',
+              borderBottom: '1px solid #003300'
+            }}
+          >
+            {/* Windows Logo (CSS ONLY) */}
+            <div className="w-[16px] h-[16px] relative drop-shadow-sm filter brightness-110">
+              <div className="absolute top-[1px] left-[1px] w-[6px] h-[6px] bg-[#f34d3d] rounded-tl-[2px]"></div>
+              <div className="absolute top-[1px] right-[1px] w-[6px] h-[6px] bg-[#25ba38] rounded-tr-[2px]"></div>
+              <div className="absolute bottom-[1px] left-[1px] w-[6px] h-[6px] bg-[#2a73eb] rounded-bl-[2px]"></div>
+              <div className="absolute bottom-[1px] right-[1px] w-[6px] h-[6px] bg-[#fdbb00] rounded-br-[2px]"></div>
+            </div>
+
+            <span className="text-white font-bold italic text-[14px] pr-3 select-none" style={{ textShadow: '1px 1px 1px rgba(0,0,0,0.5)' }}>start</span>
+          </div>
+
+          {/* Start Menu Placeholder (Optional decorative pop-up) */}
+          {/* Start Menu with Icons */}
+          {isStartOpen && (
+            <div className="absolute bottom-[32px] left-0 w-[380px] h-[480px] bg-white border border-[#003399] rounded-t-[5px] shadow-2xl flex flex-col overflow-hidden z-50 rounded-tr-[5px] rounded-tl-[5px]">
+              <div className="h-[50px] bg-gradient-to-b from-[#166bae] to-[#0d4f9b] flex items-center px-2 gap-3 border-b border-[#0d4f9b] shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]">
+                <div className="w-[36px] h-[36px] bg-white rounded-[3px] overflow-hidden border-[2px] border-white shadow-md">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={AVATARS[avatarIndex]} alt="User" className="w-full h-full object-cover" />
+                </div>
+                <span className="text-white font-bold text-[16px] drop-shadow-md">{username}</span>
+              </div>
+              <div className="flex-grow flex border-t border-[#fcae42]">
+                <div className="w-1/2 bg-white p-2 flex flex-col gap-1 border-r border-[#d3d3d3] relative">
+                  <div className="font-bold text-[#333] mb-1 px-1 text-[11px]">Internet</div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px] mb-1">
+                    <img src="/Internet explorer.ico" alt="IE" className="w-[32px] h-[32px] object-contain" />
+                    <div className="flex flex-col leading-none">
+                      <span className="text-[12px] font-bold text-[#333] group-hover:text-white mb-[2px]">Internet Explorer</span>
+                      <span className="text-[10px] text-[#888] group-hover:text-[#dceaf7]">Browser</span>
+                    </div>
+                  </div>
+
+                  <div className="font-bold text-[#333] mb-1 px-1 mt-1 text-[11px]">E-mail</div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px]">
+                    <img src="/Outlook_Express_XP_Icon.webp" alt="Outlook" className="w-[32px] h-[32px] object-contain" />
+                    <div className="flex flex-col leading-none">
+                      <span className="text-[12px] font-bold text-[#333] group-hover:text-white mb-[2px]">Outlook Express</span>
+                      <span className="text-[10px] text-[#888] group-hover:text-[#dceaf7]">E-mail</span>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#ddd] to-transparent my-1"></div>
+
+                  {/* Pinned List */}
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px]">
+                    <span className="icon-[emojione--butterfly] w-[16px] h-[16px]" />
+                    <span className="text-[11px] text-[#333] group-hover:text-white">MSN Messenger</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px]">
+                    <span className="icon-[flat-color-icons--video-file] w-[16px] h-[16px]" />
+                    <span className="text-[11px] text-[#333] group-hover:text-white">Windows Media Player</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px]">
+                    <span className="icon-[emojione--busts-in-silhouette] w-[16px] h-[16px]" />
+                    <span className="text-[11px] text-[#333] group-hover:text-white">Windows Messenger</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer group rounded-[2px]">
+                    <span className="icon-[flat-color-icons--briefcase] w-[16px] h-[16px]" />
+                    <span className="text-[11px] text-[#333] group-hover:text-white">Tour Windows XP</span>
+                  </div>
+
+                  <div className="mt-auto flex justify-center py-2 border-t border-[#eee]">
+                    <div className="flex items-center gap-1 font-bold text-[#333] text-[11px] cursor-pointer hover:bg-[#eefcfeb6] p-1 rounded">
+                      All Programs <span className="bg-[#2f8b39] text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] pl-[1px]">▶</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-1/2 bg-[#d3e5fa] p-2 flex flex-col gap-[2px] border-l border-[#95bdee] text-[11px]">
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--folder] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] font-bold group-hover:text-white">My Documents</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--document] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] font-bold group-hover:text-white">My Recent Documents</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--picture] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] font-bold group-hover:text-white">My Pictures</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--music] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] font-bold group-hover:text-white">My Music</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group mt-1">
+                    <span className="icon-[flat-color-icons--display] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] font-bold group-hover:text-white">My Computer</span>
+                  </div>
+
+                  <div className="w-full h-[1px] bg-[#95bdee] my-1"></div>
+
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--settings] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] group-hover:text-white">Control Panel</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--list] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] group-hover:text-white">Set Program Access...</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--print] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] group-hover:text-white">Printers and Faxes</span>
+                  </div>
+
+                  <div className="w-full h-[1px] bg-[#95bdee] my-1"></div>
+
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[mdi--help-circle] w-[18px] h-[18px] text-[#1b73e8] group-hover:text-white" />
+                    <span className="text-[#00135b] group-hover:text-white">Help and Support</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--search] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] group-hover:text-white">Search</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1 hover:bg-[#316ac5] hover:text-white cursor-pointer rounded-[2px] group">
+                    <span className="icon-[flat-color-icons--command-line] w-[18px] h-[18px]" />
+                    <span className="text-[#00135b] group-hover:text-white">Run...</span>
+                  </div>
+                </div>
+              </div>
+              <div className="h-[40px] bg-gradient-to-b from-[#4e81d1] to-[#1a57b8] flex items-center justify-end px-2 gap-3 border-t border-[#fcae42]">
+                <div className="flex items-center gap-1 cursor-pointer hover:bg-[#316ac5] px-1 rounded flex-none transition-colors">
+                  <div className="w-[20px] h-[20px] bg-[#e5a041] rounded-[2px] border border-white/40 flex items-center justify-center shadow-sm">
+                    <span className="icon-[mdi--key-variant] w-[14px] h-[14px] text-white" />
+                  </div>
+                  <span className="text-white text-[11px]">Log Off</span>
+                </div>
+                <div className="flex items-center gap-1 cursor-pointer hover:bg-[#316ac5] px-1 rounded flex-none transition-colors">
+                  <div className="w-[20px] h-[20px] bg-[#cf4e46] rounded-[2px] border border-white/40 flex items-center justify-center shadow-sm">
+                    <span className="icon-[mdi--power] w-[14px] h-[14px] text-white" />
+                  </div>
+                  <span className="text-white text-[11px]">Turn Off Computer</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Separator / Handle */}
+        <div className="w-[10px] h-full flex items-center justify-center opacity-30 mx-1">
+          <div className="w-[1px] h-[80%] bg-white/20 border-l border-black/10"></div>
+        </div>
+
+        {/* Task Buttons Container */}
+        <div className="flex-grow flex items-center gap-1 overflow-hidden px-1">
+          {/* Active Window Button (MSN) */}
+          <div className="w-[160px] h-[24px] bg-[#1e52b7] rounded-[2px] flex items-center px-2 gap-2 cursor-pointer shadow-[inset_1px_2px_3px_rgba(0,0,0,0.3)] border-t border-[#153a82] border-l border-[#153a82] border-r border-[#3a75e6] border-b border-[#3a75e6]"
+            style={{
+              background: 'linear-gradient(to bottom, #194398 0%, #194398 100%)',
+            }}
+          >
+            <img src="/Messenger.png" alt="Task Icon" className="w-[16px] h-[16px]" />
+            <span className="text-white text-[11px] truncate shadow-black drop-shadow-md opacity-90">MSN Messenger</span>
+          </div>
+
+          {/* Inactive Button Example (Hidden for now, just decorative) */}
+        </div>
+
+        {/* System Tray */}
+        <div className="h-full flex items-center pl-2 pr-4 gap-2 border-l border-[#135fba] shadow-[inset_1px_1px_1px_rgba(0,0,0,0.15)] relative"
+          style={{
+            background: 'linear-gradient(to bottom, #1290e8 0%, #2f9ce8 10%, #0b77e9 30%, #1290e8 100%)'
+          }}
+        >
+          {/* Collapse Arrow */}
+          <div className="w-[16px] h-[16px] bg-[#1290e8] rounded-full flex items-center justify-center cursor-pointer hover:bg-white/20 border border-white/20 shadow-sm text-white text-[10px]">
+            ‹
+          </div>
+
+          {/* Tray Icons */}
+          <div className="flex items-center gap-1 mx-1">
+            {/* Generic Icons: Volume, Network, USB */}
+            <span className="text-white/90 text-[12px] cursor-pointer hover:text-white translate-y-[1px]">🔈</span>
+            <span className="text-white/90 text-[12px] cursor-pointer hover:text-white">🛡️</span>
+          </div>
+
+          {/* Clock */}
+          <div className="text-white text-[11px] font-thin tracking-wide flex flex-col items-center justify-center leading-none pl-2 border-l border-black/10 shadow-[inset_1px_0_0_rgba(255,255,255,0.1)] h-full cursor-default hover:bg-[#1975c9] px-2 transition-colors min-w-[50px]">
+            {currentTime ? currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
           </div>
         </div>
 

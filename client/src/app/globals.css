@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@iconify/tailwind4";
 
 body {
   font-family: 'Tahoma', 'Verdana', sans-serif;

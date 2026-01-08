@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Windows Live Messenger",
   description: "Clone of Windows Live Messenger built with Next.js",
+  icons: {
+    icon: "/Network Computers.ico",
+  },
 };
 
 export default function RootLayout({
