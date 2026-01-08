@@ -1,8 +1,54 @@
 @import "tailwindcss";
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: url('https://win98icons.alexmeub.com/images/background-clouds.jpg') no-repeat center center fixed;
+  font-family: 'Tahoma', 'Verdana', sans-serif;
+  background: url('/173428-windows_xp-microsoft_windows-microsoft_corporation-sistema_operativo-paisaje_natural-1920x1080.jpg') no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
+  user-select: none;
+  /* Prevent selection like a real app */
+}
+
+/* Custom Scrollbar for Webkit/Blink */
+::-webkit-scrollbar {
+  width: 17px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #eef1f5;
+  border-left: 1px solid #dee1e5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to right, #dae6f5, #c8daf0 45%, #bfd4ed 50%, #c8daf0);
+  border: 1px solid #fff;
+  border-right-color: #9dbce0;
+  border-bottom-color: #9dbce0;
+  border-radius: 1px;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to right, #eaf3fc, #dceaf9 45%, #d1e4f7 50%, #dceaf9);
+}
+
+::-webkit-scrollbar-button {
+  background: #dae6f5;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #fff;
+  border-right-color: #8faac9;
+  border-bottom-color: #8faac9;
+  box-shadow: inset 1px 1px 0 #f0f5fb;
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='7' height='4' viewBox='0 0 7 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 0L7 4H0L3.5 0Z' fill='%234d6185'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='7' height='4' viewBox='0 0 7 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 4L0 0H7L3.5 4Z' fill='%234d6185'/%3E%3C/svg%3E");
 }
